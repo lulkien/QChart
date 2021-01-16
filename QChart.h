@@ -15,11 +15,11 @@
 #define DEFAULT_AXIS_COLOR      "#000000"
 #define DEFAULT_DOT_COLOR       "#FF7801"
 
-struct Dot : public QObject
+struct Dot
 {
-    int x;
-    int y;
-    Dot() : x{0}, y{0}
+    qreal x;
+    qreal y;
+    Dot(qreal _x = 0, qreal _y = 0) : x{_x}, y{_y}
     { }
 };
 
@@ -47,8 +47,6 @@ class QChart : public QQuickPaintedItem
     Q_PROPERTY(qreal yMax READ yMax WRITE setYMax NOTIFY yMaxChanged)
     Q_PROPERTY(qreal yMin READ yMin WRITE setYMin NOTIFY yMinChanged)
 
-    Q_PROPERTY(QList<QObject*> listData READ listData WRITE setListData NOTIFY listDataChanged)
-
 public:
 
     explicit QChart(QQuickItem* parent = nullptr);
@@ -71,8 +69,6 @@ public:
     QColor axisColor() const;
     QColor lineColor() const;
 
-    QList<QObject*> listData() const;
-
     qreal xMax() const;
     qreal xMin() const;
     qreal yMax() const;
@@ -90,21 +86,17 @@ public slots:
     void setYAxisDiv(int yAxisDiv);
     void setGridMode(int gridMode);
 
+    void setBackgroundColor(QColor backgroundColor);
     void setDotColor(QColor dotColor);
     void setAxisColor(QColor axisColor);
     void setLineColor(QColor lineColor);
 
-    void setListData(QList<QObject*> listData);
-
-    void setBackgroundColor(QColor backgroundColor);
-
     void setXMax(qreal xMax);
-
     void setXMin(qreal xMin);
-
     void setYMax(qreal yMax);
-
     void setYMin(qreal yMin);
+
+    void appendToList(qreal x, qreal y);
 
 signals:
     void xAxisChanged(QString xAxis);
@@ -114,27 +106,24 @@ signals:
     void lineThicknessChanged(int lineThickness);
     void dotThicknessChanged(int dotThickness);
 
+    void backgroundColorChanged(QColor backgroundColor);
     void dotColorChanged(QColor dotColor);
     void axisColorChanged(QColor axisColor);
     void lineColorChanged(QColor lineColor);
 
-    void listDataChanged(QList<QObject*> listData);
-
     void xAxisDivChanged(int xAxisDiv);
-
     void yAxisDivChanged(int yAxisDiv);
-
     void gridModeChanged(int gridMode);
 
-    void backgroundColorChanged(QColor backgroundColor);
-
     void xMaxChanged(qreal xMax);
-
     void xMinChanged(qreal xMin);
-
     void yMaxChanged(qreal yMax);
-
     void yMinChanged(qreal yMin);
+
+private:
+    Dot dataToChart(const Dot& _other, qreal distance, int index);
+    Dot dataToChart(qreal x, qreal y, qreal distance, int index);
+    qreal mapData(qreal y);
 
 private:
     QString m_xAxis;
@@ -157,7 +146,8 @@ private:
     qreal m_xMin;
     qreal m_yMax;
     qreal m_yMin;
-    QList<QObject*> m_listData;
+    QList<Dot> m_listData;
+    QList<qreal> m_mappedList;
 };
 
 #endif // QCHART_H

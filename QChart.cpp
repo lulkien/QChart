@@ -1,12 +1,15 @@
 #include "QChart.h"
+#include <QDebug>
+
+#define db qDebug()
 
 QChart::QChart(QQuickItem *parent)
     : QQuickPaintedItem(parent)
     , m_xAxis{"xAxis"}
     , m_yAxis{"yAxis"}
     , m_axisThickness{5}
-    , m_lineThickness{1}
-    , m_dotThickness{2}
+    , m_lineThickness{2}
+    , m_dotThickness{5}
     , m_xAxisDiv{5}
     , m_yAxisDiv{5}
     , m_gridMode{QChart_Enum::NoGrid}
@@ -53,7 +56,7 @@ void QChart::paint(QPainter *painter)
         painter->setOpacity(0.7);
         if (m_xAxisDiv > 1 && boundingRect().width() > 50) // draw xGrid
         {
-            int distance = (boundingRect().width() - 20) / m_xAxisDiv;
+            qreal distance = (boundingRect().width() - 20) / m_xAxisDiv;
             for (int i = 1; i <= m_xAxisDiv; i++)
             {
                 painter->drawLine(boundingRect().x() + distance * i
@@ -64,7 +67,7 @@ void QChart::paint(QPainter *painter)
         }
         if (m_yAxis > 1 && boundingRect().height() > 50) // draw yGrid
         {
-            int distance = (boundingRect().height() - 20) / m_yAxisDiv;
+            qreal distance = (boundingRect().height() - 20) / m_yAxisDiv;
             for (int i = 1; i <= m_yAxisDiv; i++)
             {
                 painter->drawLine(boundingRect().x()
@@ -78,6 +81,32 @@ void QChart::paint(QPainter *painter)
     painter->setPen(Qt::NoPen);
     painter->setOpacity(1);
 
+    // draw dot and line
+    if (m_listData.count() > 0)                             // if there are more than or at least one point, then draw it
+    {
+        qreal distance = (boundingRect().width() - 20) / m_xAxisDiv;
+        if (m_listData.count() > 1)                         // if there are more than or at least two points, then draw line
+        {
+            painter->setPen(QPen(brushLine, m_lineThickness));
+            for (int i = 0; i < m_listData.count() - 1; i++)
+            {
+                db << "go";
+                painter->drawLine(boundingRect().x() + distance * i
+                                  , m_mappedList[i]
+                                  , boundingRect().x() + distance * (i + 1)
+                                  , m_mappedList[i + 1]);                               // draw line
+            }
+        }
+
+        painter->setBrush(brushDot);
+        painter->setPen(Qt::NoPen);
+        for (int i = 0; i < m_listData.count(); i++)
+        {
+            painter->drawEllipse(QPointF(boundingRect().x() + distance * i, m_mappedList[i])
+                                 , m_dotThickness
+                                 , m_dotThickness);                                     // draw dot
+        }
+    }
 }
 
 QString QChart::xAxis() const
@@ -93,11 +122,6 @@ QString QChart::yAxis() const
 int QChart::axisThickness() const
 {
     return m_axisThickness;
-}
-
-QList<QObject *> QChart::listData() const
-{
-    return m_listData;
 }
 
 qreal QChart::xMax() const
@@ -192,15 +216,6 @@ void QChart::setAxisThickness(int axisThickness)
     emit axisThicknessChanged(m_axisThickness);
 }
 
-void QChart::setListData(QList<QObject *> listData)
-{
-    if (m_listData == listData)
-        return;
-
-    m_listData = listData;
-    emit listDataChanged(m_listData);
-}
-
 void QChart::setBackgroundColor(QColor backgroundColor)
 {
     if (m_backgroundColor == backgroundColor)
@@ -248,6 +263,40 @@ void QChart::setYMin(qreal yMin)
 
     m_yMin = yMin;
     emit yMinChanged(m_yMin);
+}
+
+void QChart::appendToList(qreal x, qreal y)
+{
+    if (x > m_xMax) x = m_xMax;
+    if (x < m_xMin) x = m_xMin;
+    if (y > m_yMax) y = m_yMax;
+    if (y < m_yMin) y = m_yMax;
+    m_listData.append(Dot(x, y));
+    m_mappedList.append(mapData(y));
+    update();
+}
+
+Dot QChart::dataToChart(const Dot &_other, qreal distance, int index)
+{
+    Dot result;
+    result.x = boundingRect().x() + distance * index;
+    result.y = boundingRect().y() + ((m_yMax - _other.y) / (m_yMax - m_yMin) * (boundingRect().height() - 20));
+    return result;
+}
+
+Dot QChart::dataToChart(qreal x, qreal y, qreal distance, int index)
+{
+    Q_UNUSED(x)
+    Dot result;
+    result.x = boundingRect().x() + distance * index;
+    result.y = boundingRect().y() + ((m_yMax - y) / (m_yMax - m_yMin) * (boundingRect().height() - 20));
+    return result;
+}
+
+qreal QChart::mapData(qreal y)
+{
+    qreal ry = boundingRect().y() + 20 + ((m_yMax - y) / (m_yMax - m_yMin) * (boundingRect().height() - 20));
+    return ry;
 }
 
 void QChart::setXAxisDiv(int xAxisDiv)

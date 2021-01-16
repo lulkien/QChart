@@ -11,15 +11,27 @@ Window {
     QChart
     {
         anchors.centerIn: parent
-        width: 600
-        height: 400
+        width: 400
+        height: 300
         gridMode: Chart.Grid
-        yAxisDiv: 6
+        yAxisDiv: 10
         xAxisDiv: 12
 
         Component.onCompleted:
         {
-            console.log(Chart.NoGrid)
+            appendToList(0, 30)
+            appendToList(0, 40)
+            appendToList(0, 25)
+            appendToList(0, 72)
+            appendToList(0, 04)
+            appendToList(0, 99)
+            appendToList(0, 88)
+            appendToList(0, 30)
+            appendToList(0, 54)
+            appendToList(0, 12)
+            appendToList(0, 40)
+            appendToList(0, 100)
+            appendToList(0, 32)
         }
     }
 
