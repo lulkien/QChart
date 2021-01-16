@@ -9,7 +9,7 @@ QChart::QChart(QQuickItem *parent)
     , m_dotThickness{2}
     , m_xAxisDiv{5}
     , m_yAxisDiv{5}
-    , m_gridMode{Chart::NoGrid}
+    , m_gridMode{QChart_Enum::NoGrid}
     , m_backgroundColor{DEFAULT_BG_COLOR}
     , m_dotColor{DEFAULT_DOT_COLOR}
     , m_axisColor{DEFAULT_AXIS_COLOR}
@@ -47,17 +47,36 @@ void QChart::paint(QPainter *painter)
                       , boundingRect().y() + boundingRect().height());      // xAxis
 
     // Draw grid if needed
-    if (static_cast<int>(Chart::Grid) == m_gridMode)
+    if (static_cast<int>(QChart_Enum::Grid) == m_gridMode)
     {
-        if (m_xAxisDiv > 1) // draw xGrid
+        painter->setPen(QPen(brushAxis, 1));
+        painter->setOpacity(0.7);
+        if (m_xAxisDiv > 1 && boundingRect().width() > 50) // draw xGrid
         {
-
+            int distance = (boundingRect().width() - 20) / m_xAxisDiv;
+            for (int i = 1; i <= m_xAxisDiv; i++)
+            {
+                painter->drawLine(boundingRect().x() + distance * i
+                                  , boundingRect().y() + boundingRect().height()
+                                  , boundingRect().x() + distance * i
+                                  , boundingRect().y());                        //draw xAxis
+            }
         }
-        if (m_yAxis > 1) // draw yGrid
+        if (m_yAxis > 1 && boundingRect().height() > 50) // draw yGrid
         {
-
+            int distance = (boundingRect().height() - 20) / m_yAxisDiv;
+            for (int i = 1; i <= m_yAxisDiv; i++)
+            {
+                painter->drawLine(boundingRect().x()
+                                  , boundingRect().y() + boundingRect().height() - distance * i
+                                  , boundingRect().x() + boundingRect().width()
+                                  , boundingRect().y() + boundingRect().height() - distance * i);       // draw yAxis
+            }
         }
     }
+
+    painter->setPen(Qt::NoPen);
+    painter->setOpacity(1);
 
 }
 

@@ -53,13 +53,6 @@ public:
 
     explicit QChart(QQuickItem* parent = nullptr);
 
-    enum Chart
-    {
-        Grid = 0,
-        NoGrid
-    };
-    Q_ENUM(Chart);
-
     void paint(QPainter* painter) override;
 
     QString xAxis() const;

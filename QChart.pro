@@ -18,7 +18,6 @@ HEADERS += \
     QChart_Enum.h
 
 SOURCES += \
-    QChart.cpp \
         main.cpp \
         QChart.cpp \
 

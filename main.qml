@@ -1,7 +1,6 @@
 import QtQuick 2.14
 import QtQuick.Window 2.14
 import CustomChart 1.0
-import CustomEnum 1.0
 
 Window {
     visible: true
@@ -14,7 +13,14 @@ Window {
         anchors.centerIn: parent
         width: 600
         height: 400
-        gridMode: Chart::Grid
+        gridMode: Chart.Grid
+        yAxisDiv: 6
+        xAxisDiv: 12
+
+        Component.onCompleted:
+        {
+            console.log(Chart.NoGrid)
+        }
     }
 
 }
