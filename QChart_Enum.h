@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-class EnumClass : public QObject
+class QChart_Enum : public QObject
 {
     Q_GADGET
 public:

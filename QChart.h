@@ -8,6 +8,7 @@
 #include <QColor>
 #include <QPen>
 #include <QList>
+#include "QChart_Enum.h"
 
 #define DEFAULT_BG_COLOR        "#99FFD7"
 #define DEFAULT_LINE_COLOR      "#000000"

@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     qmlRegisterType<QChart>("CustomChart", 1, 0, "QChart");
+    qmlRegisterUncreatableType<QChart_Enum>("CustomEnum", 1, 0, "Chart", "uncreateble");
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
