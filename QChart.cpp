@@ -87,25 +87,31 @@ void QChart::paint(QPainter *painter)
     if (m_listData.count() > 0)                             // if there are more than or at least one point, then draw it
     {
         qreal distance = (boundingRect().width() - 20) / m_xAxisDiv;
+//        if (m_listData.count() > 1)                         // if there are more than or at least two points, then draw line
+//        {
+//            painter->setPen(QPen(brushLine, m_lineThickness));
+//            for (int i = 0; i < m_listData.count() - 1; i++)
+//            {
+//                painter->drawLine(boundingRect().x() + distance * i
+//                                  , m_mappedList[i]
+//                                  , boundingRect().x() + distance * (i + 1)
+//                                  , m_mappedList[i + 1]);                               // draw line
+//            }                                 // ============>   OLD STYLE LINE BUT STABLE, UNCOMMENT IF NEEDED
+//        }
+
         if (m_listData.count() > 1)                         // if there are more than or at least two points, then draw line
         {
             painter->setPen(QPen(brushLine, m_lineThickness));
             for (int i = 0; i < m_listData.count() - 1; i++)
             {
-                painter->drawLine(boundingRect().x() + distance * i
-                                  , m_mappedList[i]
-                                  , boundingRect().x() + distance * (i + 1)
-                                  , m_mappedList[i + 1]);                               // draw line
-            }                                 // ============>   OLD STYLE LINE BUT STABLE, UNCOMMENT IF NEEDED
+                drawEasingPath(painter
+                               , QChart_Enum::InOutSine
+                               , QPointF(boundingRect().x() + distance * i, m_mappedList[i])
+                               , QPointF(boundingRect().x() + distance * (i + 1), m_mappedList[i + 1])
+                               , distance
+                               , 20);
+            }
         }
-
-//        if (m_listData.count() > 1)
-//        {
-//            painter->setPen(QPen(brushLine, m_lineThickness));
-//            painter->setBrush(QColor("transparent"));
-//            painter->setBackgroundMode(Qt::TransparentMode);
-//            painter->drawPath(getPath(distance));
-//        }
 
         painter->setBrush(brushDot);
         painter->setPen(Qt::NoPen);
@@ -318,65 +324,39 @@ qreal QChart::mapData(qreal y)
     return ry;
 }
 
-qreal QChart::getDistance(const QPointF &p1, const QPointF &p2) const
+void QChart::drawEasingPath(QPainter *painter
+                            , int easingType
+                            , const QPointF& p1, const QPointF& p2
+                            , qreal distance
+                            , int sample)
 {
-    return qSqrt(qPow(p1.x() - p2.x(), 2) + qPow(p1.y() - p2.y(), 2));
-}
-
-QPointF QChart::getLineStart(const QPointF &p1, const QPointF &p2) const
-{
-    QPointF point;
-    qreal rat = 10 / getDistance(p1, p2);
-    if (rat > 0.5)
+    switch (easingType)
     {
-        rat = 0.5;
+    case static_cast<int>(QChart_Enum::Linear):
+    {
+        painter->drawLine(p1, p2);
     }
-    point.setX((1.0 - rat) * p1.x() + rat * p2.x());
-    point.setY((1.0 - rat) * p1.y() + rat * p2.y());
-    return point;
-}
-
-QPointF QChart::getLineEnd(const QPointF &p1, const QPointF &p2) const
-{
-    QPointF point;
-    qreal rat = 10.0 / getDistance(p1, p2);
-    if (rat > 0.5)
+        break;
+    case static_cast<int>(QChart_Enum::InOutSine):
     {
-        rat = 0.5;
-    }
-    point.setX(rat * p1.x() + (1.0 - rat) * p2.x());
-    point.setY(rat * p1.y() + (1.0 - rat) * p2.y());
-    return point;
-}
-
-QPainterPath QChart::getPath(const qreal& distance)
-{
-    QPainterPath path;
-    if (m_listData.count() < 2)
-    {
-        return path;
-    }
-    QPointF p1;
-    QPointF p2;
-
-    for (int i = 0; i < m_listData.count() - 1; i++)
-    {
-        p1 = getLineStart(QPointF(boundingRect().x() + distance * i, m_mappedList[i])
-                          , QPointF(boundingRect().x() + distance * (i + 1), m_mappedList[i + 1]));
-        if (i == 0)
+        QPointF xp1, xp2;
+        qreal dy = p2.y() - p1.y();
+        for (int i = 0; i < sample; i++)
         {
-            path.moveTo(p1);
+            xp1 = QPointF(p1.x() + (i * distance) / sample
+                          , qPow(qSin((Q_PI * i) / (2 * sample)), 2) * dy + p1.y());
+            xp2 = QPointF(p1.x() + ((i + 1) * distance) / sample
+                          , qPow(qSin((Q_PI * (i + 1)) / (2 * sample)), 2) * dy + p1.y());
+            painter->drawLine(xp1, xp2);
         }
-        else
-        {
-//            path.quadTo(QPointF(boundingRect().x() + distance * i, m_mappedList[i]), p1);
-            path.cubicTo(QPointF(boundingRect().x() + distance * i, m_mappedList[i]), p1, p1);
-        }
-        p2 = getLineEnd(QPointF(boundingRect().x() + distance * i, m_mappedList[i])
-                          , QPointF(boundingRect().x() + distance * (i + 1), m_mappedList[i + 1]));
-        path.lineTo(p2);
     }
-    return path;
+        break;
+    default:
+    {
+        painter->drawLine(p1, p2);
+    }
+        break;
+    }
 }
 
 void QChart::setXAxisDiv(int xAxisDiv)

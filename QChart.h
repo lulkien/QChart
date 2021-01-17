@@ -11,10 +11,13 @@
 #include <QPainterPath>
 #include "QChart_Enum.h"
 
-#define DEFAULT_BG_COLOR        "#C1FFE8"
+#define DEFAULT_BG_COLOR        "#E9FFF6"
 #define DEFAULT_LINE_COLOR      "#000000"
 #define DEFAULT_AXIS_COLOR      "#000000"
 #define DEFAULT_DOT_COLOR       "#FF7801"
+
+#define Q_PI 3.141592
+#define Q_PI_001 0.03141592
 
 struct Dot
 {
@@ -127,11 +130,7 @@ private:
     Dot dataToChart(qreal x, qreal y, qreal distance, int index);
     qreal mapData(qreal y);
 
-    qreal getDistance(const QPointF& p1, const QPointF& p2) const;
-    QPointF getLineStart(const QPointF& p1, const QPointF& p2) const;
-    QPointF getLineEnd(const QPointF& p1, const QPointF& p2) const;
-
-    QPainterPath getPath(const qreal& distance);
+    void drawEasingPath(QPainter *painter , int easingType, const QPointF& p1, const QPointF& p2, qreal distance, int sample = 25);
 
 private:
     QString m_xAxis;

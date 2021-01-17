@@ -13,6 +13,13 @@ public:
         Grid,
     };
     Q_ENUM(Chart)
+
+    enum EasingType
+    {
+        Linear = 0,
+        InOutSine,
+    };
+    Q_ENUM(EasingType)
 };
 
 #endif // QCHART_ENUM_H
