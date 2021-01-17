@@ -8,9 +8,10 @@
 #include <QColor>
 #include <QPen>
 #include <QList>
+#include <QPainterPath>
 #include "QChart_Enum.h"
 
-#define DEFAULT_BG_COLOR        "#99FFD7"
+#define DEFAULT_BG_COLOR        "#C1FFE8"
 #define DEFAULT_LINE_COLOR      "#000000"
 #define DEFAULT_AXIS_COLOR      "#000000"
 #define DEFAULT_DOT_COLOR       "#FF7801"
@@ -97,6 +98,7 @@ public slots:
     void setYMin(qreal yMin);
 
     void appendToList(qreal x, qreal y);
+    void appendData(qreal data);
 
 signals:
     void xAxisChanged(QString xAxis);
@@ -124,6 +126,12 @@ private:
     Dot dataToChart(const Dot& _other, qreal distance, int index);
     Dot dataToChart(qreal x, qreal y, qreal distance, int index);
     qreal mapData(qreal y);
+
+    qreal getDistance(const QPointF& p1, const QPointF& p2) const;
+    QPointF getLineStart(const QPointF& p1, const QPointF& p2) const;
+    QPointF getLineEnd(const QPointF& p1, const QPointF& p2) const;
+
+    QPainterPath getPath(const qreal& distance);
 
 private:
     QString m_xAxis;

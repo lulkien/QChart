@@ -1,5 +1,7 @@
 #include "QChart.h"
 #include <QDebug>
+#include <QtMath>
+#include <QPainterPath>
 
 #define db qDebug()
 
@@ -9,7 +11,7 @@ QChart::QChart(QQuickItem *parent)
     , m_yAxis{"yAxis"}
     , m_axisThickness{5}
     , m_lineThickness{2}
-    , m_dotThickness{5}
+    , m_dotThickness{6}
     , m_xAxisDiv{5}
     , m_yAxisDiv{5}
     , m_gridMode{QChart_Enum::NoGrid}
@@ -90,13 +92,20 @@ void QChart::paint(QPainter *painter)
             painter->setPen(QPen(brushLine, m_lineThickness));
             for (int i = 0; i < m_listData.count() - 1; i++)
             {
-                db << "go";
                 painter->drawLine(boundingRect().x() + distance * i
                                   , m_mappedList[i]
                                   , boundingRect().x() + distance * (i + 1)
                                   , m_mappedList[i + 1]);                               // draw line
-            }
+            }                                 // ============>   OLD STYLE LINE BUT STABLE, UNCOMMENT IF NEEDED
         }
+
+//        if (m_listData.count() > 1)
+//        {
+//            painter->setPen(QPen(brushLine, m_lineThickness));
+//            painter->setBrush(QColor("transparent"));
+//            painter->setBackgroundMode(Qt::TransparentMode);
+//            painter->drawPath(getPath(distance));
+//        }
 
         painter->setBrush(brushDot);
         painter->setPen(Qt::NoPen);
@@ -267,6 +276,11 @@ void QChart::setYMin(qreal yMin)
 
 void QChart::appendToList(qreal x, qreal y)
 {
+    if (m_listData.count() > m_xAxisDiv)
+    {
+        m_listData.clear();
+        m_mappedList.clear();
+    }
     if (x > m_xMax) x = m_xMax;
     if (x < m_xMin) x = m_xMin;
     if (y > m_yMax) y = m_yMax;
@@ -274,6 +288,11 @@ void QChart::appendToList(qreal x, qreal y)
     m_listData.append(Dot(x, y));
     m_mappedList.append(mapData(y));
     update();
+}
+
+void QChart::appendData(qreal data)
+{
+    appendToList(0, data);
 }
 
 Dot QChart::dataToChart(const Dot &_other, qreal distance, int index)
@@ -297,6 +316,67 @@ qreal QChart::mapData(qreal y)
 {
     qreal ry = boundingRect().y() + 20 + ((m_yMax - y) / (m_yMax - m_yMin) * (boundingRect().height() - 20));
     return ry;
+}
+
+qreal QChart::getDistance(const QPointF &p1, const QPointF &p2) const
+{
+    return qSqrt(qPow(p1.x() - p2.x(), 2) + qPow(p1.y() - p2.y(), 2));
+}
+
+QPointF QChart::getLineStart(const QPointF &p1, const QPointF &p2) const
+{
+    QPointF point;
+    qreal rat = 10 / getDistance(p1, p2);
+    if (rat > 0.5)
+    {
+        rat = 0.5;
+    }
+    point.setX((1.0 - rat) * p1.x() + rat * p2.x());
+    point.setY((1.0 - rat) * p1.y() + rat * p2.y());
+    return point;
+}
+
+QPointF QChart::getLineEnd(const QPointF &p1, const QPointF &p2) const
+{
+    QPointF point;
+    qreal rat = 10.0 / getDistance(p1, p2);
+    if (rat > 0.5)
+    {
+        rat = 0.5;
+    }
+    point.setX(rat * p1.x() + (1.0 - rat) * p2.x());
+    point.setY(rat * p1.y() + (1.0 - rat) * p2.y());
+    return point;
+}
+
+QPainterPath QChart::getPath(const qreal& distance)
+{
+    QPainterPath path;
+    if (m_listData.count() < 2)
+    {
+        return path;
+    }
+    QPointF p1;
+    QPointF p2;
+
+    for (int i = 0; i < m_listData.count() - 1; i++)
+    {
+        p1 = getLineStart(QPointF(boundingRect().x() + distance * i, m_mappedList[i])
+                          , QPointF(boundingRect().x() + distance * (i + 1), m_mappedList[i + 1]));
+        if (i == 0)
+        {
+            path.moveTo(p1);
+        }
+        else
+        {
+//            path.quadTo(QPointF(boundingRect().x() + distance * i, m_mappedList[i]), p1);
+            path.cubicTo(QPointF(boundingRect().x() + distance * i, m_mappedList[i]), p1, p1);
+        }
+        p2 = getLineEnd(QPointF(boundingRect().x() + distance * i, m_mappedList[i])
+                          , QPointF(boundingRect().x() + distance * (i + 1), m_mappedList[i + 1]));
+        path.lineTo(p2);
+    }
+    return path;
 }
 
 void QChart::setXAxisDiv(int xAxisDiv)

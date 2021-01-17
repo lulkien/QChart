@@ -8,31 +8,12 @@ Window {
     height: 480
     title: qsTr("Hello World")
 
-    QChart
+    QChartRT
     {
-        anchors.centerIn: parent
-        width: 400
-        height: 300
-        gridMode: Chart.Grid
-        yAxisDiv: 10
+        anchors.fill: parent
         xAxisDiv: 12
-
-        Component.onCompleted:
-        {
-            appendToList(0, 30)
-            appendToList(0, 40)
-            appendToList(0, 25)
-            appendToList(0, 72)
-            appendToList(0, 04)
-            appendToList(0, 99)
-            appendToList(0, 88)
-            appendToList(0, 30)
-            appendToList(0, 54)
-            appendToList(0, 12)
-            appendToList(0, 40)
-            appendToList(0, 100)
-            appendToList(0, 32)
-        }
+        yAxisDiv: 5
+        gridMode: Chart.Grid
     }
 
 }
