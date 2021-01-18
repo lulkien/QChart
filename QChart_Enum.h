@@ -18,6 +18,12 @@ public:
     {
         Linear = 0,
         InOutSine,
+        InOutBack,
+        InOutQuad,
+        InOutCirc,
+        InOutExpo,
+        easeInOutElastic,
+        easeInOutBounce,
     };
     Q_ENUM(EasingType)
 };

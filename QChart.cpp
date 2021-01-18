@@ -23,6 +23,7 @@ QChart::QChart(QQuickItem *parent)
     , m_xMin{0}
     , m_yMax{100}
     , m_yMin{0}
+    , m_easingType{QChart_Enum::Linear}
 {
 }
 
@@ -105,11 +106,11 @@ void QChart::paint(QPainter *painter)
             for (int i = 0; i < m_listData.count() - 1; i++)
             {
                 drawEasingPath(painter
-                               , QChart_Enum::InOutSine
+                               , m_easingType
                                , QPointF(boundingRect().x() + distance * i, m_mappedList[i])
                                , QPointF(boundingRect().x() + distance * (i + 1), m_mappedList[i + 1])
                                , distance
-                               , 20);
+                               , 30);
             }
         }
 
@@ -121,6 +122,99 @@ void QChart::paint(QPainter *painter)
                                  , m_dotThickness
                                  , m_dotThickness);                                     // draw dot
         }
+    }
+}
+
+void QChart::drawEasingPath(QPainter *painter
+                            , int easingType
+                            , const QPointF& p1, const QPointF& p2
+                            , qreal distance
+                            , int sample)
+{
+    switch (easingType)
+    {
+    case static_cast<int>(QChart_Enum::Linear):
+    {
+        painter->drawLine(p1, p2);
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InOutSine):
+    {
+        QPointF xp1, xp2;
+        qreal dy = p2.y() - p1.y();
+        qreal x;
+        qreal dx = 1.0 / sample;
+        for (int i = 0; i < sample; i++)
+        {
+            x = i / (1.0 * sample);
+
+            xp1 = QPointF(p1.x() + (x * distance)
+                          , EASE->func_InOutSine(x) * dy + p1.y());
+            xp2 = QPointF(p1.x() + ((x + dx) * distance)
+                          , EASE->func_InOutSine(x + dx) * dy + p1.y());
+            painter->drawLine(xp1, xp2);
+        }
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InOutBack):
+    {
+        QPointF xp1, xp2;
+        qreal dy = p2.y() - p1.y();
+        qreal x;
+        qreal dx = 1.0 / sample;
+        for (int i = 0; i < sample; i++)
+        {
+            x = i / (1.0 * sample);
+
+            xp1 = QPointF(p1.x() + (x * distance)
+                          , EASE->func_InOutBack(x) * dy + p1.y());
+            xp2 = QPointF(p1.x() + ((x + dx) * distance)
+                          , EASE->func_InOutBack(x + dx) * dy + p1.y());
+            painter->drawLine(xp1, xp2);
+        }
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InOutQuad):
+    {
+        QPointF xp1, xp2;
+        qreal dy = p2.y() - p1.y();
+        qreal x;
+        qreal dx = 1.0 / sample;
+        for (int i = 0; i < sample; i++)
+        {
+            x = i / (1.0 * sample);
+
+            xp1 = QPointF(p1.x() + (x * distance)
+                          , EASE->func_InOutQuad(x) * dy + p1.y());
+            xp2 = QPointF(p1.x() + ((x + dx) * distance)
+                          , EASE->func_InOutQuad(x + dx) * dy + p1.y());
+            painter->drawLine(xp1, xp2);
+        }
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InOutExpo):
+    {
+        QPointF xp1, xp2;
+        qreal dy = p2.y() - p1.y();
+        qreal x;
+        qreal dx = 1.0 / sample;
+        for (int i = 0; i < sample; i++)
+        {
+            x = i / (1.0 * sample);
+
+            xp1 = QPointF(p1.x() + (x * distance)
+                          , EASE->func_easeInOutExpo(x) * dy + p1.y());
+            xp2 = QPointF(p1.x() + ((x + dx) * distance)
+                          , EASE->func_easeInOutExpo(x + dx) * dy + p1.y());
+            painter->drawLine(xp1, xp2);
+        }
+    }
+        break;
+    default:
+    {
+        painter->drawLine(p1, p2);
+    }
+        break;
     }
 }
 
@@ -157,6 +251,11 @@ qreal QChart::yMax() const
 qreal QChart::yMin() const
 {
     return m_yMin;
+}
+
+int QChart::easingType() const
+{
+    return m_easingType;
 }
 
 QColor QChart::backgroundColor() const
@@ -301,6 +400,15 @@ void QChart::appendData(qreal data)
     appendToList(0, data);
 }
 
+void QChart::setEasingType(int easingType)
+{
+    if (m_easingType == easingType)
+        return;
+
+    m_easingType = easingType;
+    emit easingTypeChanged(m_easingType);
+}
+
 Dot QChart::dataToChart(const Dot &_other, qreal distance, int index)
 {
     Dot result;
@@ -322,41 +430,6 @@ qreal QChart::mapData(qreal y)
 {
     qreal ry = boundingRect().y() + 20 + ((m_yMax - y) / (m_yMax - m_yMin) * (boundingRect().height() - 20));
     return ry;
-}
-
-void QChart::drawEasingPath(QPainter *painter
-                            , int easingType
-                            , const QPointF& p1, const QPointF& p2
-                            , qreal distance
-                            , int sample)
-{
-    switch (easingType)
-    {
-    case static_cast<int>(QChart_Enum::Linear):
-    {
-        painter->drawLine(p1, p2);
-    }
-        break;
-    case static_cast<int>(QChart_Enum::InOutSine):
-    {
-        QPointF xp1, xp2;
-        qreal dy = p2.y() - p1.y();
-        for (int i = 0; i < sample; i++)
-        {
-            xp1 = QPointF(p1.x() + (i * distance) / sample
-                          , qPow(qSin((Q_PI * i) / (2 * sample)), 2) * dy + p1.y());
-            xp2 = QPointF(p1.x() + ((i + 1) * distance) / sample
-                          , qPow(qSin((Q_PI * (i + 1)) / (2 * sample)), 2) * dy + p1.y());
-            painter->drawLine(xp1, xp2);
-        }
-    }
-        break;
-    default:
-    {
-        painter->drawLine(p1, p2);
-    }
-        break;
-    }
 }
 
 void QChart::setXAxisDiv(int xAxisDiv)

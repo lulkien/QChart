@@ -1,5 +1,5 @@
-import QtQuick 2.14
-import QtQuick.Window 2.14
+import QtQuick 2.12
+import QtQuick.Window 2.12
 import CustomChart 1.0
 
 Window {
@@ -11,9 +11,10 @@ Window {
     QChartRT
     {
         anchors.fill: parent
-        xAxisDiv: 12
+        xAxisDiv: 24
         yAxisDiv: 5
         gridMode: Chart.Grid
+        easingType: Chart.InOutExpo
     }
 
 }

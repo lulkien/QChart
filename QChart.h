@@ -10,14 +10,17 @@
 #include <QList>
 #include <QPainterPath>
 #include "QChart_Enum.h"
+#include "EasingFunction.h"
 
 #define DEFAULT_BG_COLOR        "#E9FFF6"
 #define DEFAULT_LINE_COLOR      "#000000"
 #define DEFAULT_AXIS_COLOR      "#000000"
 #define DEFAULT_DOT_COLOR       "#FF7801"
 
-#define Q_PI 3.141592
-#define Q_PI_001 0.03141592
+#ifndef DEFINE_CONST
+#define DEFINE_CONST
+#define Q_PI 3.141592654
+#endif
 
 struct Dot
 {
@@ -50,6 +53,7 @@ class QChart : public QQuickPaintedItem
     Q_PROPERTY(qreal xMin READ xMin WRITE setXMin NOTIFY xMinChanged)
     Q_PROPERTY(qreal yMax READ yMax WRITE setYMax NOTIFY yMaxChanged)
     Q_PROPERTY(qreal yMin READ yMin WRITE setYMin NOTIFY yMinChanged)
+    Q_PROPERTY(int easingType READ easingType WRITE setEasingType NOTIFY easingTypeChanged)
 
 public:
 
@@ -78,6 +82,8 @@ public:
     qreal yMax() const;
     qreal yMin() const;
 
+    int easingType() const;
+
 public slots:
     void setXAxis(QString xAxis);
     void setYAxis(QString yAxis);
@@ -103,6 +109,8 @@ public slots:
     void appendToList(qreal x, qreal y);
     void appendData(qreal data);
 
+    void setEasingType(int easingType);
+
 signals:
     void xAxisChanged(QString xAxis);
     void yAxisChanged(QString yAxis);
@@ -124,6 +132,8 @@ signals:
     void xMinChanged(qreal xMin);
     void yMaxChanged(qreal yMax);
     void yMinChanged(qreal yMin);
+
+    void easingTypeChanged(int easingType);
 
 private:
     Dot dataToChart(const Dot& _other, qreal distance, int index);
@@ -155,6 +165,7 @@ private:
     qreal m_yMin;
     QList<Dot> m_listData;
     QList<qreal> m_mappedList;
+    int m_easingType;
 };
 
 #endif // QCHART_H
