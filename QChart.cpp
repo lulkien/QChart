@@ -110,7 +110,7 @@ void QChart::paint(QPainter *painter)
                                , QPointF(boundingRect().x() + distance * i, m_mappedList[i])
                                , QPointF(boundingRect().x() + distance * (i + 1), m_mappedList[i + 1])
                                , distance
-                               , 30);
+                               , 100);
             }
         }
 
@@ -131,6 +131,8 @@ void QChart::drawEasingPath(QPainter *painter
                             , qreal distance
                             , int sample)
 {
+    if (sample > 100) sample = 100;
+    if (sample < 50) sample = 50;
     switch (easingType)
     {
     case static_cast<int>(QChart_Enum::Linear):
@@ -156,6 +158,16 @@ void QChart::drawEasingPath(QPainter *painter
         }
     }
         break;
+    case static_cast<int>(QChart_Enum::OutSine):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InSine):
+    {
+
+    }
+        break;
     case static_cast<int>(QChart_Enum::InOutBack):
     {
         QPointF xp1, xp2;
@@ -172,6 +184,16 @@ void QChart::drawEasingPath(QPainter *painter
                           , EASE->func_InOutBack(x + dx) * dy + p1.y());
             painter->drawLine(xp1, xp2);
         }
+    }
+        break;
+    case static_cast<int>(QChart_Enum::OutBack):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InBack):
+    {
+
     }
         break;
     case static_cast<int>(QChart_Enum::InOutQuad):
@@ -192,6 +214,16 @@ void QChart::drawEasingPath(QPainter *painter
         }
     }
         break;
+    case static_cast<int>(QChart_Enum::OutQuad):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InQuad):
+    {
+
+    }
+        break;
     case static_cast<int>(QChart_Enum::InOutExpo):
     {
         QPointF xp1, xp2;
@@ -203,11 +235,150 @@ void QChart::drawEasingPath(QPainter *painter
             x = i / (1.0 * sample);
 
             xp1 = QPointF(p1.x() + (x * distance)
-                          , EASE->func_easeInOutExpo(x) * dy + p1.y());
+                          , EASE->func_InOutExpo(x) * dy + p1.y());
             xp2 = QPointF(p1.x() + ((x + dx) * distance)
-                          , EASE->func_easeInOutExpo(x + dx) * dy + p1.y());
+                          , EASE->func_InOutExpo(x + dx) * dy + p1.y());
             painter->drawLine(xp1, xp2);
         }
+    }
+        break;
+    case static_cast<int>(QChart_Enum::OutExpo):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InExpo):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InOutBounce):
+    {
+        QPointF xp1, xp2;
+        qreal dy = p2.y() - p1.y();
+        qreal x;
+        qreal dx = 1.0 / sample;
+        for (int i = 0; i < sample; i++)
+        {
+            x = i / (1.0 * sample);
+
+            xp1 = QPointF(p1.x() + (x * distance)
+                          , EASE->func_InOutBounce(x) * dy + p1.y());
+            xp2 = QPointF(p1.x() + ((x + dx) * distance)
+                          , EASE->func_InOutBounce(x + dx) * dy + p1.y());
+            painter->drawLine(xp1, xp2);
+        }
+    }
+        break;
+    case static_cast<int>(QChart_Enum::OutBounce):
+    {
+        QPointF xp1, xp2;
+        qreal dy = p2.y() - p1.y();
+        qreal x;
+        qreal dx = 1.0 / sample;
+        for (int i = 0; i < sample; i++)
+        {
+            x = i / (1.0 * sample);
+
+            xp1 = QPointF(p1.x() + (x * distance)
+                          , EASE->func_OutBounce(x) * dy + p1.y());
+            xp2 = QPointF(p1.x() + ((x + dx) * distance)
+                          , EASE->func_OutBounce(x + dx) * dy + p1.y());
+            painter->drawLine(xp1, xp2);
+        }
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InBounce):
+    {
+        QPointF xp1, xp2;
+        qreal dy = p2.y() - p1.y();
+        qreal x;
+        qreal dx = 1.0 / sample;
+        for (int i = 0; i < sample; i++)
+        {
+            x = i / (1.0 * sample);
+
+            xp1 = QPointF(p1.x() + (x * distance)
+                          , EASE->func_InBounce(x) * dy + p1.y());
+            xp2 = QPointF(p1.x() + ((x + dx) * distance)
+                          , EASE->func_InBounce(x + dx) * dy + p1.y());
+            painter->drawLine(xp1, xp2);
+        }
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InOutCirc):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::OutCirc):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InCirc):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InOutCubic):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::OutCubic):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InCubic):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InOutElastic):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::OutElastic):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InElastic):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InOutQuart):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::OutQuart):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InQuart):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InOutQuint):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::OutQuint):
+    {
+
+    }
+        break;
+    case static_cast<int>(QChart_Enum::InQuint):
+    {
+
     }
         break;
     default:

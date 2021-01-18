@@ -11,10 +11,10 @@ Window {
     QChartRT
     {
         anchors.fill: parent
-        xAxisDiv: 24
+        xAxisDiv: 3
         yAxisDiv: 5
         gridMode: Chart.Grid
-        easingType: Chart.InOutExpo
+        easingType: Chart.OutBounce
     }
 
 }

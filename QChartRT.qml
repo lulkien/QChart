@@ -23,8 +23,8 @@ Rectangle
         width: root.width - 10
         height: root.height - 10
         anchors.centerIn: root
-        yMax: 40
-        yMin: 10
+        yMax: 100
+        yMin: 0
     }
 
     Timer
@@ -34,7 +34,7 @@ Rectangle
         repeat: true
         onTriggered:
         {
-            chartID.appendData(Math.random() * (35 - 20) + 20)
+            chartID.appendData(Math.random() * (100 - 0) + 0)
         }
     }
 
